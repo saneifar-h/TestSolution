@@ -1,0 +1,15 @@
+﻿@using TestSolution.Client.Pages.Dto
+<div class="card" style="width: 18rem;">
+    <div class="card-body">
+        <span class="badge badge-pill badge-success">@TaskItem.Order</span>
+        <h5 class="card-title">@TaskItem.Title</h5>
+        <h6 class="card-subtitle mb-2 text-muted">Start Date @TaskItem.StartDate </h6>
+        <p class="card-text">@TaskItem.Description</p>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public TaskItem TaskItem { get; set; }
+}

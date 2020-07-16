@@ -1,0 +1,23 @@
+﻿@page "/"
+@using TestSolution.Client.Pages.Dto
+@using TestSolution.Client.Pages.IndexPage
+
+
+<h1>Hello, May name is <strong> Hossein Saneifar </strong> </h1>
+
+This is my first Blazor Applcation that I have written.
+To have report about Tasks which I done, I list Tasks here
+
+<TaskListComponent TaskItems=@GetTask() />
+
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+
+@code
+{
+    List<TaskItem> GetTask()
+    {
+        return new IndexViewModel().GetTasks();
+    }
+}

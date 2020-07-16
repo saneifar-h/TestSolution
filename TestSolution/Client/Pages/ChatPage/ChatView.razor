@@ -1,0 +1,61 @@
+﻿@page "/chat"
+@inject NavigationManager navigationManager
+
+<div class="top-row px-4">
+    @if (viewmodel.Chatting)
+    {
+        <p>You are connected as <b>@viewmodel.Username</b></p>
+        <button class="btn btn-sm btn-warning ml-md-auto" @onclick="@viewmodel.DisconnectAsync">Disconnect</button>
+    }
+</div>
+
+<div class="content px-4">
+
+    <h1>Blazor SignalR Chat Sample</h1>
+
+    @if (!@viewmodel.Chatting)
+    {
+        <h2>Chat</h2>
+
+        <p>
+            Enter your name to start chatting:
+        </p>
+
+        <input type="text" maxlength="32" @bind="@viewmodel.Username" />
+        <button type="button" @onclick="Start"><span class="oi oi-chat" aria-hidden="true"></span> Chat!</button>
+
+        @if (@viewmodel.Message != null)
+        {
+            <div class="invalid-feedback">@viewmodel.Message</div>
+            <small id="emailHelp" class="form-text text-muted">@viewmodel.Message</small>
+        }
+    }
+
+    @if (@viewmodel.Chatting)
+    {
+        <div id="scrollbox">
+
+            @foreach (var item in @viewmodel.Messages)
+            {
+                <div class="@item.Css">
+                    <div class="user">@item.Username</div>
+                    <div class="msg">@item.Body</div>
+                </div>
+            }
+            <hr />
+            <textarea class="input-lg" placeholder="enter your comment" @bind="@viewmodel.NewMessage"></textarea>
+            <button class="btn btn-success" @onclick="@viewmodel.SendAsync" style="margin-bottom: 30px">Send</button>
+        </div>
+    }
+</div>
+
+@code
+{
+    ChatViewModel viewmodel = new ChatViewModel();
+
+    async Task Start()
+    {
+        await viewmodel.Chat(navigationManager.BaseUri);
+        viewmodel.StateChanged += (s, e) => StateHasChanged();
+    }
+}

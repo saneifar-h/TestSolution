@@ -1,0 +1,12 @@
+﻿@using TestSolution.Client.Pages.Dto
+<div class="card-deck">
+    @foreach (var taskItem in TaskItems)
+    {
+        <TaskItemComponent TaskItem=@taskItem />
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<TaskItem> TaskItems { get; set; }
+}
