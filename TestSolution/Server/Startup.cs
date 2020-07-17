@@ -1,18 +1,19 @@
+using System;
+using System.Linq;
+using System.Net.Http;
+using Blazor.FileReader;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Linq;
 using TestSolution.Server.Data;
+using TestSolution.Server.Hubs;
 using TestSolution.Server.Models;
+using TestSolution.Shared;
 
 namespace TestSolution.Server
 {
@@ -39,13 +40,34 @@ namespace TestSolution.Server
             services.AddIdentityServer()
                 .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
+            services.AddServerSideBlazor().AddHubOptions(opts =>
+            {
+                opts.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10MB
+            });
+
+            // Server Side Blazor doesn't register HttpClient by default
+            if (services.All(x => x.ServiceType != typeof(HttpClient)))
+            {
+                // Setup HttpClient for server side in a client side compatible fashion
+                services.AddScoped(s =>
+                {
+                    // Creating the URI helper needs to wait until the JS Runtime is initialized, so defer it.
+                    var uriHelper = s.GetRequiredService<NavigationManager>();
+                    return new HttpClient
+                    {
+                        BaseAddress = new Uri(uriHelper.BaseUri)
+                    };
+                });
+            }
+
+
+
             services.AddAuthentication()
                 .AddIdentityServerJwt();
-
+            services.AddFileReaderService();
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddSignalR();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -78,7 +100,7 @@ namespace TestSolution.Server
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                endpoints.MapHub<Hubs.ChatHub>(Shared.ChatClient.Huburl);
+                endpoints.MapHub<ChatHub>(ChatClient.Huburl);
                 endpoints.MapFallbackToFile("index.html");
             });
         }
