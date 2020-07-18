@@ -22,6 +22,8 @@ namespace TestSolution.Client.Pages.IndexPage
                     "All First Chat Application Feature Added To this Project"),
                 new TaskItem(6, "Start Joining Second One", DateTime.Parse("2020-07-16"),
                     "After First joining Try I Get Error And I have to go Somewhere So Still Needs To complete "),
+                new TaskItem(7, "Merging New Chat Solution Complete", DateTime.Parse("2020-07-17"),
+                    "Now you can send Emoji and files using previous sample"),
 
             };
         }
