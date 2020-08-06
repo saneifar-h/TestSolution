@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
 using TestSolution.Shared;
 
 namespace TestSolution.Client.Pages.ChatPage
@@ -14,11 +13,14 @@ namespace TestSolution.Client.Pages.ChatPage
         public List<Message> Messages = new List<Message>();
         public string NewMessage;
         public string Username = null;
+        private readonly IChatView _view;
 
 
-        public event EventHandler StateChanged;
-
-        public async Task Chat(string url)
+        public ChatViewModel(IChatView view)
+        {
+            _view = view;
+        }
+        public async Task Start()
         {
             if (string.IsNullOrWhiteSpace(Username))
             {
@@ -29,7 +31,7 @@ namespace TestSolution.Client.Pages.ChatPage
             try
             {
                 Messages.Clear();
-                var baseUrl = url;
+                var baseUrl = _view.BaseUri;
                 _client = new ChatClient(Username, baseUrl);
                 _client.MessageReceived += MessageReceived;
                 await _client.StartAsync();
@@ -50,7 +52,8 @@ namespace TestSolution.Client.Pages.ChatPage
 
             var newMsg = new Message(e.Username, e.Message, isMine);
             Messages.Add(newMsg);
-            StateChanged?.Invoke(this, null);
+
+            _view.ChangeState();
         }
 
         public async Task DisconnectAsync()
